@@ -1,8 +1,5 @@
-import {
-  ArrowTopRightOnSquareIcon,
-  PencilIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowTopRightOnSquareIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import React from "react";
 import TButton from "./core/TButton";
 
 export default function SurveyListItem({ survey, onDeleteClick }) {
@@ -15,13 +12,13 @@ export default function SurveyListItem({ survey, onDeleteClick }) {
       />
       <h4 className="mt-4 text-lg font-bold">{survey.title}</h4>
       <div
-        className="overflow-hidden flex-1"
         dangerouslySetInnerHTML={{ __html: survey.description }}
+        className="overflow-hidden flex-1"
       ></div>
 
       <div className="flex justify-between items-center mt-3">
-        <TButton to={`surveys/${survey.id}`}>
-          <PencilIcon className="w-5 h-5 mr-2" />
+        <TButton to={`/surveys/${survey.id}`}>
+          <PencilIcon className="w-5 h-5 mr-2 " />
           Edit
         </TButton>
         <div className="flex items-center">
@@ -30,7 +27,7 @@ export default function SurveyListItem({ survey, onDeleteClick }) {
           </TButton>
 
           {survey.id && (
-            <TButton onClick={onDeleteClick} circle link color="red">
+            <TButton onClick={ev => onDeleteClick(survey.id)} circle link color="red">
               <TrashIcon className="w-5 h-5" />
             </TButton>
           )}

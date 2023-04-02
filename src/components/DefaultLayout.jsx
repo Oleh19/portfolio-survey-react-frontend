@@ -1,9 +1,16 @@
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, UserIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Navigate, Outlet } from "react-router";
-import { NavLink } from "react-router-dom";
+import {
+  Bars3Icon,
+  BellIcon,
+  UserIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Navigate, NavLink, Outlet } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
+import axiosClient from "../axios";
+import { useEffect } from "react";
+import Toast from "./Toast";
 
 const navigation = [
   { name: "Dashboard", to: "/" },
@@ -15,7 +22,8 @@ function classNames(...classes) {
 }
 
 export default function DefaultLayout() {
-  const { currentUser, userToken } = useStateContext();
+  const { currentUser, userToken, setCurrentUser, setUserToken } =
+    useStateContext();
 
   if (!userToken) {
     return <Navigate to="login" />;
@@ -23,8 +31,18 @@ export default function DefaultLayout() {
 
   const logout = (ev) => {
     ev.preventDefault();
-    console.log("Logout");
+    axiosClient.post("/logout").then((res) => {
+      setCurrentUser({});
+      setUserToken(null);
+    });
   };
+
+  useEffect(() => {
+    axiosClient.get('/me')
+      .then(({ data }) => {
+        setCurrentUser(data)
+      })
+  }, [])
 
   return (
     <>
@@ -53,7 +71,7 @@ export default function DefaultLayout() {
                                 isActive
                                   ? "bg-gray-900 text-white"
                                   : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                                "rounded-md px-3 py-2 text-sm font-medium"
+                                "px-3 py-2 rounded-md text-sm font-medium"
                               )
                             }
                           >
@@ -70,7 +88,7 @@ export default function DefaultLayout() {
                         <div>
                           <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                             <span className="sr-only">Open user menu</span>
-                            <UserIcon className="w-10 h-10 bg-black/25 p-2 rounded-full text-white" />
+                            <UserIcon className="w-8 h-8 bg-black/25 p-2 rounded-full text-white" />
                           </Menu.Button>
                         </div>
                         <Transition
@@ -87,9 +105,11 @@ export default function DefaultLayout() {
                               <a
                                 href="#"
                                 onClick={(ev) => logout(ev)}
-                                className="block px-4 py-2 text-sm text-gray-700"
+                                className={
+                                  "block px-4 py-2 text-sm text-gray-700"
+                                }
                               >
-                                Sign Out
+                                Sign out
                               </a>
                             </Menu.Item>
                           </Menu.Items>
@@ -118,7 +138,7 @@ export default function DefaultLayout() {
               </div>
 
               <Disclosure.Panel className="md:hidden">
-                <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+                <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
                   {navigation.map((item) => (
                     <NavLink
                       key={item.name}
@@ -128,19 +148,18 @@ export default function DefaultLayout() {
                           isActive
                             ? "bg-gray-900 text-white"
                             : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "block rounded-md px-3 py-2 text-base font-medium"
+                          "block px-3 py-2 rounded-md text-base font-medium"
                         )
                       }
-                      aria-current={item.current ? "page" : undefined}
                     >
                       {item.name}
                     </NavLink>
                   ))}
                 </div>
-                <div className="border-t border-gray-700 pb-3 pt-4">
+                <div className="border-t border-gray-700 pt-4 pb-3">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
-                      <UserIcon className="w-10 h-10 bg-black/25 p-2 rounded-full text-white" />
+                      <UserIcon className="w-8 h-8 bg-black/25 p-2 rounded-full text-white" />
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium leading-none text-white">
@@ -153,11 +172,12 @@ export default function DefaultLayout() {
                   </div>
                   <div className="mt-3 space-y-1 px-2">
                     <Disclosure.Button
+                      as="a"
                       href="#"
                       onClick={(ev) => logout(ev)}
                       className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                     >
-                      Sign Out
+                      Sign out
                     </Disclosure.Button>
                   </div>
                 </div>
@@ -165,7 +185,10 @@ export default function DefaultLayout() {
             </>
           )}
         </Disclosure>
+
         <Outlet />
+
+        <Toast />
       </div>
     </>
   );

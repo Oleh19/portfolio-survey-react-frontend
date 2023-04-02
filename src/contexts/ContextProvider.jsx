@@ -1,10 +1,16 @@
-import { useContext, useState, createContext } from "react";
-import icon from "../assets/logo.svg";
+import { useContext } from "react";
+import { useState } from "react";
+import { createContext } from "react";
 
 const StateContext = createContext({
   currentUser: {},
   userToken: null,
   surveys: [],
+  questionTypes: [],
+  toast: {
+    message: null,
+    show: false,
+  },
   setCurrentUser: () => {},
   setUserToken: () => {},
 });
@@ -13,14 +19,14 @@ const tmpSurveys = [
   {
     id: 1,
     image_url: "https://api.yoursurveys.xyz/images/vJutXzn02CDwdOyh.png",
-    title: "TheCodeholic YouTube channel",
-    slug: "thecodeholic-youtube-channel",
+    title: "JavaScript",
+    slug: "javascript",
     status: true,
     description:
-      "My name is Zura.<br>I am Web Developer with 9+ years of experience, free educational content creator, CTO, Lecturer and father of two wonderful daughters.<br><br>The purpose of the channel is to share my several years of experience with beginner developers.<br>Teach them what I know and make my experience as a lesson for others.",
-    created_at: "2022-01-07 13:23:41",
-    updated_at: "2022-01-18 16:34:19",
-    expire_date: "2022-01-23",
+      "My name is Oleh.<br>I am Web Developer.<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus at explicabo perferendis? Delectus dicta id voluptate aspernatur nemo. Cupiditate totam ad nisi quia amet odio sapiente delectus ullam neque maxime.", 
+    created_at: "2023-01-01 13:23:41",
+    updated_at: "2023-01-02 16:34:19",
+    expire_date: "2023-01-23",
     questions: [
       {
         id: 15,
@@ -166,9 +172,9 @@ const tmpSurveys = [
     status: true,
     description:
       "React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.",
-    created_at: "2022-01-07 08:50:40",
-    updated_at: "2022-01-07 13:37:37",
-    expire_date: "2022-02-01",
+    created_at: "2023-01-07 08:50:40",
+    updated_at: "2023-01-07 13:37:37",
+    expire_date: "2023-02-01",
     questions: [],
   },
   {
@@ -179,21 +185,35 @@ const tmpSurveys = [
     status: true,
     description:
       "Laravel is a web application framework with expressive, elegant syntax. We\u2019ve already laid the foundation \u2014 freeing you to create without sweating the small things.",
-    created_at: "2022-01-07 13:28:56",
-    updated_at: "2022-01-07 13:28:56",
-    expire_date: "2022-01-20",
+    created_at: "2023-01-07 13:28:56",
+    updated_at: "2023-01-07 13:28:56",
+    expire_date: "2023-01-20",
     questions: [],
   },
 ];
 
 export const ContextProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState({
-    name: "Tom Cook",
-    email: "tom@example.com",
-    imageUrl: icon,
-  });
-  const [userToken, setUserToken] = useState("12345");
-  const [surveys, setSurveys] = useState(tmpSurveys);
+  const [currentUser, setCurrentUser] = useState({});
+  const [userToken, _setUserToken] = useState(localStorage.getItem('TOKEN') || '');
+  const [surveys, setSurveys] = useState(tmpSurveys)
+  const [questionTypes] = useState(['text', "select", "radio", "checkbox", "textarea"])
+  const [toast, setToast] = useState({message: '', show: false})
+
+  const setUserToken = (token) => {
+    if (token) {
+      localStorage.setItem('TOKEN', token)
+    } else {
+      localStorage.removeItem('TOKEN')
+    }
+    _setUserToken(token);
+  }
+
+  const showToast = (message) => {
+    setToast({ message, show: true })
+    setTimeout(() => {
+      setToast({message: '', show: false})
+    }, 5000)
+  }
 
   return (
     <StateContext.Provider
@@ -203,6 +223,9 @@ export const ContextProvider = ({ children }) => {
         userToken,
         setUserToken,
         surveys,
+        questionTypes,
+        toast,
+        showToast
       }}
     >
       {children}
